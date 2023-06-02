@@ -29,14 +29,9 @@ jobs:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
-      - name: Build and push Docker image
-        run: |
-          docker build -t ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.AZURE_WEBAPP_NAME }}:${{ github.sha }} .
-          docker push ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.AZURE_WEBAPP_NAME }}:${{ github.sha }}
-
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           slot-name: ${{ env.AZURE_WEBAPP_SLOT }}
-          images: ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.AZURE_WEBAPP_NAME }}:${{ github.sha }}
+          images: ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.AZURE_WEBAPP_NAME }}:v1
