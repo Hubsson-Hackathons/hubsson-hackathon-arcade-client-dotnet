@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hubsson.Hackathon.Arcade.Client.Dotnet", "Hubsson.Hackathon.Arcade.Client.Dotnet\Hubsson.Hackathon.Arcade.Client.Dotnet.csproj", "{093EC494-C693-4F39-8545-200991ADCCF3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{093EC494-C693-4F39-8545-200991ADCCF3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{093EC494-C693-4F39-8545-200991ADCCF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{093EC494-C693-4F39-8545-200991ADCCF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{093EC494-C693-4F39-8545-200991ADCCF3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
