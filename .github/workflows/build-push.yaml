@@ -30,7 +30,7 @@ jobs:
                   username: ${{ secrets.REGISTRY_USERNAME }}
                   password: ${{ secrets.REGISTRY_PASSWORD }}
             - run: |
-                  docker build -f Hubsson.Hackathon.Arcade.Client.Dotnet/Hubsson.Hackathon.Arcade.Client.Dotnet/Dockerfile . -t HubssonHackathon.azurecr.io/client:v1
+                  docker build -f Hubsson.Hackathon.Arcade.Client.Dotnet/Hubsson.Hackathon.Arcade.Client.Dotnet/Dockerfile . -t HubssonHackathon.azurecr.io/${{ env.AZURE_WEBAPP_NAME }}:v1
                   docker push HubssonHackathon.azurecr.io/${{ env.AZURE_WEBAPP_NAME }}:v1
 
             - name: Azure logout
