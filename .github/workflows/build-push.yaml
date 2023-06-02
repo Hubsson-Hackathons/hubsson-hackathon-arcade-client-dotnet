@@ -26,8 +26,8 @@ jobs:
                   username: ${{ secrets.REGISTRY_USERNAME }}
                   password: ${{ secrets.REGISTRY_PASSWORD }}
             - run: |
-                  docker build -f Dockerfile . -t HubssonHackathon.azurecr.io/client:${{ github.sha }}
-                  docker push HubssonHackathon.azurecr.io/client:${{ github.sha }}
+                  docker build -f Hubsson.Hackathon.Arcade.Client.Dotnet/Hubsson.Hackathon.Arcade.Client.Dotnet/Dockerfile . -t HubssonHackathon.azurecr.io/client:v1
+                  docker push HubssonHackathon.azurecr.io/client:v1
 
             - name: Azure logout
               run: |
