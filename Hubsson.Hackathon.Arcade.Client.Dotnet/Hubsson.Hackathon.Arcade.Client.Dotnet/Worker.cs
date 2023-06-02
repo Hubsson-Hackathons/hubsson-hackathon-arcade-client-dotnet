@@ -28,6 +28,25 @@ public class Worker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        var connected = false;
+        while (!connected)
+        {
+            try
+            {
+                InitGame();
+                connected = true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            } 
+        }
+
+        await WaitForCancelAsync(stoppingToken);
+    }
+
+    private async Task InitGame()
+    {
         _logger.LogInformation("Arcade Client worker running at: {time}", DateTimeOffset.Now);
         var socketClient = SocketClient.CreateClient(_arcadeSettings.ServerUrl, _arcadeSettings.Username,
             _arcadeSettings.Secret, _logger);
@@ -37,8 +56,6 @@ public class Worker : BackgroundService
             secret = _arcadeSettings.Secret, 
             name = _arcadeSettings.Username,
         });
-
-        await WaitForCancelAsync(stoppingToken);
     }
 
     private async Task WaitForCancelAsync(CancellationToken stoppingToken)
