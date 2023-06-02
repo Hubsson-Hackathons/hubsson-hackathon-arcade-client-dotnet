@@ -3,14 +3,14 @@ WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY "Hubsson.Hackathon.Arcade.Client.Dotnet.csproj" .
-RUN dotnet restore "Hubsson.Hackathon.Arcade.Client.Dotnet.csproj"
+COPY "Hubsson.Hackathon.Arcade.Client.Dotnet/Hubsson.Hackathon.Arcade.Client.Dotnet/Hubsson.Hackathon.Arcade.Client.Dotnet.csproj" .
+RUN dotnet restore "Hubsson.Hackathon.Arcade.Client.Dotnet/Hubsson.Hackathon.Arcade.Client.Dotnet/Hubsson.Hackathon.Arcade.Client.Dotnet.csproj"
 COPY . .
 WORKDIR /src
-RUN dotnet build "Hubsson.Hackathon.Arcade.Client.Dotnet.csproj" -c Release -o /app/build
+RUN dotnet build "Hubsson.Hackathon.Arcade.Client.Dotnet/Hubsson.Hackathon.Arcade.Client.Dotnet/Hubsson.Hackathon.Arcade.Client.Dotnet.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "Hubsson.Hackathon.Arcade.Client.Dotnet.csproj" -c Release -o /app/publish
+RUN dotnet publish "Hubsson.Hackathon.Arcade.Client.Dotnet/Hubsson.Hackathon.Arcade.Client.Dotnet/Hubsson.Hackathon.Arcade.Client.Dotnet.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
