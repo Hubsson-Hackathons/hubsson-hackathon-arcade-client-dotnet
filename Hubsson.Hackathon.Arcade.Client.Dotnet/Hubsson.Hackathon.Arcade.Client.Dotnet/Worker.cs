@@ -85,14 +85,18 @@ public class Worker : BackgroundService
         {
             try
             {
+                if (payload == null)
+                {
+                    _logger.LogError("Empty Payload");
+                    return;
+                }
+                
                 var domainPayload = new ClientGameState
                 {
                     width = payload.width,
                     height = payload.height,
                     iteration = payload.iteration,
                     tickTimeInMs = payload.tickTimeInMs,
-                    playerId = payload.playerId,
-                    direction = GetEnumDirection(payload.direction),
                     players = payload.players,
                 };
                 var action = _match.Update(domainPayload);
