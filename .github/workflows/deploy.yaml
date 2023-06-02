@@ -37,7 +37,7 @@ jobs:
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Deploy to Azure Container App
-        uses: azure/webapps-container-deploy@v1
+        uses: azure/container-apps-deploy-action@v1
         with:
           app-name: ${{ env.AZURE_CONTAINER_APP_NAME }}
           images: ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.AZURE_CONTAINER_APP_NAME }}:v1
