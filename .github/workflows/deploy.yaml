@@ -36,11 +36,13 @@ jobs:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
-      - name: Deploy to Azure Container App
-        uses: azure/container-apps-deploy-action@v1
-        with:
-          app-name: ${{ env.AZURE_CONTAINER_APP_NAME }}
-          acrName: HubssonHackathon
-          containerAppName: ${{ env.AZURE_CONTAINER_APP_NAME }}
-          resourceGroup: ${{ env.AZURE_RESOURCE_GROUP }}
-          imageToDeploy: ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.AZURE_CONTAINER_APP_NAME }}:v1
+      - name: Configure Docker credentials
+        run: az containerapp create \
+          --name ${{ env.AZURE_CONTAINER_APP_NAME }} \
+          --resource-group ${{ AZURE_RESOURCE_GROUP }} \
+          --environment Production \
+          --image HubssonHackathon.azurecr.io/${{ env.AZURE_CONTAINER_APP_NAME }} \
+          --target-port 3500 \
+          --ingress 'external' \
+          --registry-server HubssonHackathon.azurecr.io \
+          --query properties.configuration.ingress.fqdn
