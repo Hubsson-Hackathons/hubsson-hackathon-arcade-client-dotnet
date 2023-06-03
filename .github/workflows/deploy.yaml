@@ -17,30 +17,28 @@ env:
 
 
 jobs:
-	build-and-deploy:
-		runs-on: ubuntu-latest
-	
-		steps:
-		- name: Checkout repository
-			uses: actions/checkout@v2
-		
-		- name: Login to Azure
-			uses: azure/login@v1
-			with:
-			creds: ${{ secrets.AZURE_CREDENTIALS }}
-	
-		- name: Login to Azure Container Registry
-			uses: azure/docker-login@v1
-			with:
-			login-server: HubssonHackathon.azurecr.io
-			username: ${{ secrets.REGISTRY_USERNAME }}
-			password: ${{ secrets.REGISTRY_PASSWORD }}
-	
-		- name: 'Deploy Container App'
-		uses: Azure/cli@v1
-		with:
-			inlineScript: |
-			echo "Installing containerapp extension"
-			az extension add --source https://workerappscliextension.blob.core.windows.net/azure-cli-extension/containerapp-0.2.0-py2.py3-none-any.whl --yes
-			echo "Starting Deploying"
-			az containerapp update -n nemkecske-client -g nemkecske-client -i HubssonHackathon.azurecr.io/${{ env.AZURE_CONTAINER_APP_NAME }}:v1 --registry-login-server HubssonHackathon.azurecr.io --registry-username  ${{ secrets.REGISTRY_USERNAME }} --registry-password ${{ secrets.REGISTRY_PASSWORD }} --debug
+    build-and-deploy-client:
+        runs-on: ubuntu-latest
+        steps:
+            # checkout the repo
+            - name: "Checkout GitHub Action"
+              uses: actions/checkout@v2
+
+            - name: "Login via Azure CLI"
+              uses: azure/login@v1
+              with:
+                  creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+            - name: "Build and push"
+              uses: azure/docker-login@v1
+              with:
+                  login-server: HubssonHackathon.azurecr.io
+                  username: ${{ secrets.REGISTRY_USERNAME }}
+                  password: ${{ secrets.REGISTRY_PASSWORD }}
+            - run: |
+                  docker build -f Hubsson.Hackathon.Arcade.Client.Dotnet/Hubsson.Hackathon.Arcade.Client.Dotnet/Dockerfile . -t HubssonHackathon.azurecr.io/${{ env.AZURE_WEBAPP_NAME }}:v1
+                  docker push HubssonHackathon.azurecr.io/${{ env.AZURE_WEBAPP_NAME }}:v1
+
+            - name: Azure logout
+              run: |
+                  az logout
