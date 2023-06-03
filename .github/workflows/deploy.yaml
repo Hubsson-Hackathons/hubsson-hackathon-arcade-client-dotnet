@@ -39,7 +39,7 @@ jobs:
       - name: Configure Docker credentials
         run: az containerapp create \
           --name ${{ env.AZURE_CONTAINER_APP_NAME }} \
-          --resource-group ${{ AZURE_RESOURCE_GROUP }} \
+          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
           --environment Production \
           --image HubssonHackathon.azurecr.io/${{ env.AZURE_CONTAINER_APP_NAME }} \
           --target-port 3500 \
