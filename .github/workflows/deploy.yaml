@@ -11,9 +11,9 @@ on:
 
 env: 
   AZURE_CONTAINER_REGISTRY: HubssonHackathon.azurecr.io        # Update with your Azure Container Registry name
-  AZURE_CONTAINER_APP_NAME: Team1-client  # Update with your Azure Container App name
-  AZURE_RESOURCE_GROUP: hubsson-arcade-clients-resouce-group-1          # Update with your Azure Resource Group name
-  AZURE_LOCATION: North Europe                      # Update with your desired Azure region
+  AZURE_CONTAINER_APP_NAME: arcade-client-1  # Update with your Azure Container App name
+  AZURE_RESOURCE_GROUP: hubsson-arcade-clients-resouce-group-1 # Update with your Azure Resource Group name
+  AZURE_LOCATION: northeurope                      # Update with your desired Azure region
 
 
 jobs:
@@ -29,27 +29,6 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Check if Azure Container App exists
-        id: check-container-app
-        run: |
-          az container show --name ${{ env.AZURE_CONTAINER_APP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }}
-          echo "::set-output name=exists::$?"
-
-      - name: Create Azure Container App
-        if: steps.check-container-app.outputs.exists != '0'
-        run: |
-          az container create --name ${{ env.AZURE_CONTAINER_APP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-            --image ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.AZURE_CONTAINER_APP_NAME }}:${{ github.sha }} \
-            --location ${{ env.AZURE_LOCATION }} --dns-name-label ${{ env.AZURE_CONTAINER_APP_NAME }} \
-            --registry-login-server ${{ env.AZURE_CONTAINER_REGISTRY }} \
-            --registry-username ${{ secrets.REGISTRY_USERNAME }} \
-            --registry-password ${{ secrets.REGISTRY_PASSWORD }}
-
-
-  deploy:
-    runs-on: ubuntu-latest
-
-    steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
@@ -61,7 +40,10 @@ jobs:
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Deploy to Azure Container App
-        uses: azure/webapps-container-deploy@v1
+        uses: azure/container-apps-deploy-action@v1
         with:
           app-name: ${{ env.AZURE_CONTAINER_APP_NAME }}
-          images: ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.AZURE_CONTAINER_APP_NAME }}:v1
+          acrName: HubssonHackathon
+          containerAppName: ${{ env.AZURE_CONTAINER_APP_NAME }}
+          resourceGroup: ${{ env.AZURE_RESOURCE_GROUP }}
+          imageToDeploy: ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.AZURE_CONTAINER_APP_NAME }}:v1
