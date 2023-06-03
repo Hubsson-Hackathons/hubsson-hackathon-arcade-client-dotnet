@@ -1,3 +1,4 @@
+using System.Net;
 using Hubsson.Hackathon.Arcade.Client.Dotnet;
 using Hubsson.Hackathon.Arcade.Client.Dotnet.Services;
 using Microsoft.Extensions.Configuration;
@@ -17,5 +18,9 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddSingleton(config.Get<ArcadeSettings>() ?? new ArcadeSettings());
     })
     .Build();
+
+var listener = new HttpListener();
+listener.Prefixes.Add("http://*:8080/");
+listener.Start();
 
 await host.RunAsync();
