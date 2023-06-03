@@ -13,7 +13,7 @@ env:
   AZURE_CONTAINER_REGISTRY: HubssonHackathon.azurecr.io        # Update with your Azure Container Registry name
   AZURE_CONTAINER_APP_NAME: team1-client  # Update with your Azure Container App name
   AZURE_RESOURCE_GROUP: hubsson-arcade-clients-resouce-group-1 # Update with your Azure Resource Group name
-  AZURE_LOCATION: North Europe                      # Update with your desired Azure region
+  AZURE_LOCATION: northeurope                      # Update with your desired Azure region
 
 
 jobs:
@@ -39,7 +39,8 @@ jobs:
             --registry-password ${{ secrets.REGISTRY_PASSWORD }}
 
 
-  deploy:
+deploy:
+  needs: create-container-app
     runs-on: ubuntu-latest
 
     steps:
@@ -58,3 +59,14 @@ jobs:
         with:
           app-name: ${{ env.AZURE_CONTAINER_APP_NAME }}
           images: ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.AZURE_CONTAINER_APP_NAME }}:v1
+
+      - name: Deploy to Azure Container App
+        uses: azure/webapps-container-deploy@v1
+        with:
+          app-name: ${{ env.AZURE_CONTAINER_APP_NAME }}
+          images: ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.AZURE_CONTAINER_APP_NAME }}:v1
+          resource-group: ${{ env.AZURE_RESOURCE_GROUP }}
+          location: ${{ env.AZURE_LOCATION }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+          enable-app-insights: true
