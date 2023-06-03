@@ -12,7 +12,7 @@ on:
 env: 
   AZURE_CONTAINER_REGISTRY: HubssonHackathon.azurecr.io        # Update with your Azure Container Registry name
   AZURE_CONTAINER_APP_NAME: team1-client  # Update with your Azure Container App name
-  AZURE_RESOURCE_GROUP: hubsson-arcade-clients-resouce-group-1          # Update with your Azure Resource Group name
+  AZURE_RESOURCE_GROUP: hubsson-arcade-clients-resouce-group-1 # Update with your Azure Resource Group name
   AZURE_LOCATION: North Europe                      # Update with your desired Azure region
 
 
@@ -29,14 +29,7 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Check if Azure Container App exists
-        id: check-container-app
-        run: |
-          az container show --name ${{ env.AZURE_CONTAINER_APP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }}
-          echo "::set-output name=exists::$?"
-
       - name: Create Azure Container App
-        if: steps.check-container-app.outputs.exists != '0'
         run: |
           az container create --name ${{ env.AZURE_CONTAINER_APP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
             --image ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.AZURE_CONTAINER_APP_NAME }}:${{ github.sha }} \
