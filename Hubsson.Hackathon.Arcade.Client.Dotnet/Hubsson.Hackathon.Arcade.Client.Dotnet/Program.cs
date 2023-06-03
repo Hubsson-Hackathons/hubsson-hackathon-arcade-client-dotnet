@@ -1,26 +1,20 @@
-using System.Net;
 using Hubsson.Hackathon.Arcade.Client.Dotnet;
 using Hubsson.Hackathon.Arcade.Client.Dotnet.Services;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
-IHost host = Host.CreateDefaultBuilder(args)
-    .ConfigureServices(services =>
-    {
-        var config = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json")
-            .Build()
-            .GetSection("ArcadeConfig");
-        
-        services.AddHostedService<Worker>();
-        services.AddTransient<MatchService>();
-        services.AddSingleton(config.Get<ArcadeSettings>() ?? new ArcadeSettings());
-    })
-    .Build();
+var config = new ConfigurationBuilder()
+    .AddJsonFile("appsettings.json")
+    .Build()
+    .GetSection("ArcadeConfig");
 
-var listener = new HttpListener();
-listener.Prefixes.Add("http://*:8080/");
-listener.Start();
+var builder = WebApplication.CreateBuilder();
+builder.Services.AddHostedService<Worker>();
+builder.Services.AddTransient<MatchService>();
+builder.Services.AddSingleton(config.Get<ArcadeSettings>() ?? new ArcadeSettings());
 
-await host.RunAsync();
+var app = builder.Build();
+
+await app.StartAsync();
+
