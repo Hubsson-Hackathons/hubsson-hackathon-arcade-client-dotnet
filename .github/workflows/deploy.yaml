@@ -10,21 +10,24 @@ on:
       - completed
 
 env: 
-  AZURE_WEBAPP_NAME: budoskecske-client     # Update with your Azure Web App name
-  AZURE_WEBAPP_SLOT: production             # Update with the deployment slot name (optional)
+  AZURE_CONTAINER_REGISTRY: HubssonHackathon.azurecr.io        # Update with your Azure Container Registry name
+  AZURE_CONTAINER_APP_NAME: budoskecske-client  # Update with your Azure Container App name
+  AZURE_RESOURCE_GROUP: DefaultResourceGroup-NEU          # Update with your Azure Resource Group name
+  AZURE_LOCATION: North Europe                      # Update with your desired Azure region
+
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
-      - name: "Login via Azure CLI"
+      
+      - name: Login to Azure
         uses: azure/login@v1
         with:
-            creds: ${{ secrets.AZURE_CREDENTIALS }}
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Login to Azure Container Registry
         uses: azure/docker-login@v1
@@ -33,9 +36,13 @@ jobs:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
-      - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          slot-name: ${{ env.AZURE_WEBAPP_SLOT }}
-          images: HubssonHackathon.azurecr.io/${{ env.AZURE_WEBAPP_NAME }}:v1
+      - name: Configure Docker credentials
+        run: az containerapp create \
+          --name ${{ env.AZURE_CONTAINER_APP_NAME }} \
+          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+          --environment Production \
+          --image HubssonHackathon.azurecr.io/${{ env.AZURE_CONTAINER_APP_NAME }} \
+          --target-port 3500 \
+          --ingress 'external' \
+          --registry-server HubssonHackathon.azurecr.io \
+          --query properties.configuration.ingress.fqdn
