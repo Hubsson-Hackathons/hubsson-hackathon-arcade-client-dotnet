@@ -43,7 +43,7 @@ jobs:
         uses: azure/container-apps-deploy-action@v1
         with:
           app-name: ${{ env.AZURE_CONTAINER_APP_NAME }}
-          acrName: HubssonHackathon
+          acrName: HubssonHackathon.azurecr.io
           containerAppName: ${{ env.AZURE_CONTAINER_APP_NAME }}
           resourceGroup: ${{ env.AZURE_RESOURCE_GROUP }}
           imageToDeploy: ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.AZURE_CONTAINER_APP_NAME }}:v1
