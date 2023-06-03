@@ -19,8 +19,4 @@ IHost host = Host.CreateDefaultBuilder(args)
     })
     .Build();
 
-var listener = new HttpListener();
-listener.Prefixes.Add("http://*:8080/");
-listener.Start();
-
 await host.RunAsync();
