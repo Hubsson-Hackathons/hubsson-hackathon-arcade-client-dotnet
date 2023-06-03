@@ -1,5 +1,6 @@
 ﻿using System;
 using Hubsson.Hackathon.Arcade.Client.Dotnet.Contracts;
+using Hubsson.Hackathon.Arcade.Client.Dotnet.Domain;
 using ClientGameState = Hubsson.Hackathon.Arcade.Client.Dotnet.Domain.ClientGameState;
 
 namespace Hubsson.Hackathon.Arcade.Client.Dotnet.Services
@@ -26,161 +27,119 @@ namespace Hubsson.Hackathon.Arcade.Client.Dotnet.Services
         public Hubsson.Hackathon.Arcade.Client.Dotnet.Domain.Action Update(ClientGameState gameState)
         {
             _logger.LogInformation($"{gameState}");
-            _logger.LogError($"CurrentDirection: {_matchRepository.currentDirection}");
-            var action = new Domain.Action();
-            Coordinate coords = getMyCoordinates(gameState);
-            if (coords.x == 1 && _matchRepository.currentDirection == Domain.Direction.Left)
-            {
-                // Bal széle
-                if (_matchRepository.currentDirection == Domain.Direction.Down || coords.y > gameState.height / 2)
-                {
-                    _logger.LogError("Turning up");
-                    _matchRepository.currentDirection = Domain.Direction.Up;
-                    return new Domain.Action
-                    {
-                        direction = Domain.Direction.Up,
-                        iteration = gameState.iteration,
-                    };
-                }
-                else
-                {
-                    _logger.LogError("Turning down");
-                    _matchRepository.currentDirection = Domain.Direction.Down;
-                    return new Domain.Action
-                    {
-                        direction = Domain.Direction.Down,
-                        iteration = gameState.iteration,
-                    };
-                }
-            }
-            if (coords.x == gameState.width - 1 && _matchRepository.currentDirection == Domain.Direction.Right)
-            {
-                // jobb széle
-                if (_matchRepository.currentDirection == Domain.Direction.Down || coords.y > gameState.height / 2)
-                {
-                    _logger.LogError("Turning up");
-                    _matchRepository.currentDirection = Domain.Direction.Up;
-                    return new Domain.Action
-                    {
-                        direction = Domain.Direction.Up,
-                        iteration = gameState.iteration,
-                    };
-                }
-                else
-                {
-                    _logger.LogError("Turning down");
-                    _matchRepository.currentDirection = Domain.Direction.Down;
-                    return new Domain.Action
-                    {
-                        direction = Domain.Direction.Down,
-                        iteration = gameState.iteration,
-                    };
-                }
-            }
-            if (coords.y == 1)
-            {
-                _logger.LogError($"CurrentDirection: {_matchRepository.currentDirection}");
-                if (_matchRepository.currentDirection == Domain.Direction.Up)
-                {
+            _logger.LogError($"CurrentDirection: {_matchRepository.lastDirection}");
 
-                    // teteje
-                    if (_matchRepository.currentDirection == Domain.Direction.Right || coords.x > gameState.width / 2)
-                    {
-                        _logger.LogError("Turning left");
-                        _matchRepository.currentDirection = Domain.Direction.Left;
-                        return new Domain.Action
-                        {
-                            direction = Domain.Direction.Left,
-                            iteration = gameState.iteration,
-                        };
-                    }
-                    else
-                    {
-                        _logger.LogError("Turning right");
-                        _matchRepository.currentDirection = Domain.Direction.Right;
-                        return new Domain.Action
-                        {
-                            direction = Domain.Direction.Right,
-                            iteration = gameState.iteration,
-                        };
-                    }
-                }
-            }
-            if (coords.y == gameState.height - 1 && _matchRepository.currentDirection == Domain.Direction.Down)
-            {
-                // alja
-                if (_matchRepository.currentDirection == Domain.Direction.Left || coords.x > gameState.width / 2)
-                {
-                    _logger.LogError("Turning left");
-                    _matchRepository.currentDirection = Domain.Direction.Left;
-                    return new Domain.Action
-                    {
-                        direction = Domain.Direction.Left,
-                        iteration = gameState.iteration,
-                    };
-                }
-                else
-                {
-                    _logger.LogError("Turning right");
-                    _matchRepository.currentDirection = Domain.Direction.Right;
-                    return new Domain.Action
-                    {
-                        direction = Domain.Direction.Right,
-                        iteration = gameState.iteration,
-                    };
-                }
-            }
+            Coordinate head = gameState.players.First(player => player.playerId == _arcadeSettings.TeamId).coordinates.Last();
 
-            _matchRepository.currentDirection = GetDirection(_arcadeSettings.TeamId, gameState);    
-
-            _logger.LogError("Turning Down (default)");
-            _matchRepository.currentDirection = Domain.Direction.Down;
-            return new Domain.Action
+            Dictionary<Direction, int> freeSpaces = new Dictionary<Direction, int>
             {
-                direction = Domain.Direction.Down,
-                iteration = gameState.iteration,
+                { Direction.Up, 0 },
+                { Direction.Down, 0 },
+                { Direction.Left, 0 },
+                { Direction.Right, 0 }
             };
-        }
 
-        private Coordinate getMyCoordinates(ClientGameState gameState)
-        {
-            return gameState.players.FirstOrDefault(player => player.playerId == _arcadeSettings.TeamId).coordinates.Last();
-        }
-
-        private Domain.Direction GetDirection(string playerId, ClientGameState gameState)
-        {
-            var direction = Domain.Direction.Down;
-            var player = gameState.players.FirstOrDefault(player => player.playerId == playerId);
-            try
+            if (_matchRepository.lastDirection == null)
             {
-                if (player?.coordinates[player.coordinates.Length - 1].x > player?.coordinates[player.coordinates.Length - 2].x)
+                _matchRepository.lastDirection = (Direction)new Random().Next(1, 5);
+            }
+            else
+            {
+                Direction oppositeDirection = GetOppositeDirection(_matchRepository.lastDirection.Value);
+                if (freeSpaces.ContainsKey(oppositeDirection))
                 {
-                    direction = Domain.Direction.Right;
-                }
-                else if (player?.coordinates[player.coordinates.Length - 1].x < player?.coordinates[player.coordinates.Length - 2].x)
-                {
-                    direction = Domain.Direction.Left;
-                }
-                else if (player?.coordinates[player.coordinates.Length - 1].y > player?.coordinates[player.coordinates.Length - 2].y)
-                {
-                    direction = Domain.Direction.Down;
-                }
-                else if (player?.coordinates[player.coordinates.Length - 1].y < player?.coordinates[player.coordinates.Length - 2].y)
-                {
-                    direction = Domain.Direction.Up;
+                    freeSpaces.Remove(oppositeDirection);
                 }
             }
-            catch (IndexOutOfRangeException)
+
+            foreach (var direction in freeSpaces.Keys.ToList())
             {
-                _logger.LogError("currentDirrection is empty, default: Direction.Down");
+                Coordinate newHead = Move(head, direction);
+
+                if (IsValidMove(newHead, gameState))
+                {
+                    freeSpaces[direction] = CountFreeSpacesInArea(newHead, gameState, 3);
+                }
+                else
+                {
+                    freeSpaces[direction] = int.MinValue;
+                }
             }
-            return direction;
-           
+
+            _matchRepository.lastDirection = freeSpaces.Aggregate((l, r) => l.Value > r.Value ? l : r).Key;
+
+            return new Domain.Action { direction = _matchRepository.lastDirection.Value, iteration = gameState.iteration };
+
+        }
+
+
+
+        private Coordinate Move(Coordinate coordinate, Direction direction)
+        {
+            switch (direction)
+            {
+                case Direction.Down: return new Coordinate { x = coordinate.x, y = coordinate.y + 1 }; 
+                case Direction.Up: return new Coordinate { x = coordinate.x, y = coordinate.y - 1 };
+                case Direction.Left: return new Coordinate { x = coordinate.x - 1, y = coordinate.y };
+                case Direction.Right: return new Coordinate { x = coordinate.x + 1, y = coordinate.y };
+                default: throw new ArgumentException($"Invalid direction: {direction}");
+            }
+        }
+
+
+        private bool IsValidMove(Coordinate coordinate, ClientGameState state)
+        {
+            if (coordinate.x < 0 || coordinate.x > state.width - 1 || coordinate.y < 0 || coordinate.y > state.height - 1)
+            {
+                return false;
+            }
+
+            foreach (var player in state.players)
+            {
+                if (player.coordinates.Any(c => c.x == coordinate.x && c.y == coordinate.y))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+
+        private int CountFreeSpacesInArea(Coordinate coordinate, ClientGameState state, int radius)
+        {
+            int freeSpaces = 0;
+
+            for (int dx = -radius; dx <= radius; dx++)
+            {
+                for (int dy = -radius; dy <= radius; dy++)
+                {
+                    Coordinate newCoordinate = new Coordinate { x = coordinate.x + dx, y = coordinate.y + dy };
+                    if (IsValidMove(newCoordinate, state))
+                    {
+                        freeSpaces++;
+                    }
+                }
+            }
+
+            return freeSpaces;
+        }
+
+        private Direction GetOppositeDirection(Direction direction)
+        {
+            switch (direction)
+            {
+                case Direction.Up: return Direction.Down;
+                case Direction.Down: return Direction.Up;
+                case Direction.Left: return Direction.Right;
+                case Direction.Right: return Direction.Left;
+                default: throw new ArgumentException($"Invalid direction: {direction}");
+            }
         }
 
         private class MatchRepository
         {
-            public Domain.Direction currentDirection;
+            public Domain.Direction? lastDirection;
             // Write your data fields here what you would like to store between the match rounds
         }
     }
