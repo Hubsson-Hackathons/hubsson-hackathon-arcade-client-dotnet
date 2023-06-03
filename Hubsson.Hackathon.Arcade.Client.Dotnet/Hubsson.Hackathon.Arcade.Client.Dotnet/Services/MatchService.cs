@@ -26,9 +26,10 @@ namespace Hubsson.Hackathon.Arcade.Client.Dotnet.Services
         public Hubsson.Hackathon.Arcade.Client.Dotnet.Domain.Action Update(ClientGameState gameState)
         {
             _logger.LogInformation($"{gameState}");
+            _logger.LogError($"CurrentDirection: {_matchRepository.currentDirection}");
             var action = new Domain.Action();
             Coordinate coords = getMyCoordinates(gameState);
-            if (coords.x == 1)
+            if (coords.x == 1 && _matchRepository.currentDirection == Domain.Direction.Left)
             {
                 // Bal széle
                 if (_matchRepository.currentDirection == Domain.Direction.Down || coords.y > gameState.height / 2)
@@ -52,7 +53,7 @@ namespace Hubsson.Hackathon.Arcade.Client.Dotnet.Services
                     };
                 }
             }
-            if (coords.x == gameState.width - 1)
+            if (coords.x == gameState.width - 1 && _matchRepository.currentDirection == Domain.Direction.Right)
             {
                 // jobb széle
                 if (_matchRepository.currentDirection == Domain.Direction.Down || coords.y > gameState.height / 2)
@@ -78,29 +79,34 @@ namespace Hubsson.Hackathon.Arcade.Client.Dotnet.Services
             }
             if (coords.y == 1)
             {
-                // teteje
-                if (_matchRepository.currentDirection == Domain.Direction.Right || coords.x > gameState.width / 2)
+                _logger.LogError($"CurrentDirection: {_matchRepository.currentDirection}");
+                if (_matchRepository.currentDirection == Domain.Direction.Up)
                 {
-                    _logger.LogError("Turning left");
-                    _matchRepository.currentDirection = Domain.Direction.Left;
-                    return new Domain.Action
+
+                    // teteje
+                    if (_matchRepository.currentDirection == Domain.Direction.Right || coords.x > gameState.width / 2)
                     {
-                        direction = Domain.Direction.Left,
-                        iteration = gameState.iteration,
-                    };
-                }
-                else
-                {
-                    _logger.LogError("Turning right");
-                    _matchRepository.currentDirection = Domain.Direction.Right;
-                    return new Domain.Action
+                        _logger.LogError("Turning left");
+                        _matchRepository.currentDirection = Domain.Direction.Left;
+                        return new Domain.Action
+                        {
+                            direction = Domain.Direction.Left,
+                            iteration = gameState.iteration,
+                        };
+                    }
+                    else
                     {
-                        direction = Domain.Direction.Right,
-                        iteration = gameState.iteration,
-                    };
+                        _logger.LogError("Turning right");
+                        _matchRepository.currentDirection = Domain.Direction.Right;
+                        return new Domain.Action
+                        {
+                            direction = Domain.Direction.Right,
+                            iteration = gameState.iteration,
+                        };
+                    }
                 }
             }
-            if (coords.y == gameState.height - 1)
+            if (coords.y == gameState.height - 1 && _matchRepository.currentDirection == Domain.Direction.Down)
             {
                 // alja
                 if (_matchRepository.currentDirection == Domain.Direction.Left || coords.x > gameState.width / 2)
@@ -124,6 +130,10 @@ namespace Hubsson.Hackathon.Arcade.Client.Dotnet.Services
                     };
                 }
             }
+
+            _matchRepository.currentDirection = GetDirection(_arcadeSettings.TeamId, gameState);    
+
+            _logger.LogError("Turning Down (default)");
             _matchRepository.currentDirection = Domain.Direction.Down;
             return new Domain.Action
             {
@@ -135,6 +145,37 @@ namespace Hubsson.Hackathon.Arcade.Client.Dotnet.Services
         private Coordinate getMyCoordinates(ClientGameState gameState)
         {
             return gameState.players.FirstOrDefault(player => player.playerId == _arcadeSettings.TeamId).coordinates.Last();
+        }
+
+        private Domain.Direction GetDirection(string playerId, ClientGameState gameState)
+        {
+            var direction = Domain.Direction.Down;
+            var player = gameState.players.FirstOrDefault(player => player.playerId == playerId);
+            try
+            {
+                if (player?.coordinates[player.coordinates.Length - 1].x > player?.coordinates[player.coordinates.Length - 2].x)
+                {
+                    direction = Domain.Direction.Right;
+                }
+                else if (player?.coordinates[player.coordinates.Length - 1].x < player?.coordinates[player.coordinates.Length - 2].x)
+                {
+                    direction = Domain.Direction.Left;
+                }
+                else if (player?.coordinates[player.coordinates.Length - 1].y > player?.coordinates[player.coordinates.Length - 2].y)
+                {
+                    direction = Domain.Direction.Down;
+                }
+                else if (player?.coordinates[player.coordinates.Length - 1].y < player?.coordinates[player.coordinates.Length - 2].y)
+                {
+                    direction = Domain.Direction.Up;
+                }
+            }
+            catch (IndexOutOfRangeException)
+            {
+                _logger.LogError("currentDirrection is empty, default: Direction.Down");
+            }
+            return direction;
+           
         }
 
         private class MatchRepository
