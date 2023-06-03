@@ -3,7 +3,7 @@ name: Deploy to Azure - Client
 on:
   push:
     branches:
-      - nemkecske
+      - release
   workflow_run:
     workflows: ["Build and Push image to Azure - Client"]  
     types:
@@ -11,7 +11,7 @@ on:
 
 env: 
   AZURE_CONTAINER_REGISTRY: HubssonHackathon.azurecr.io        # Update with your Azure Container Registry name
-  AZURE_CONTAINER_APP_NAME: nemkecske-client  # Update with your Azure Container App name
+  AZURE_CONTAINER_APP_NAME: Team1-client  # Update with your Azure Container App name
   AZURE_RESOURCE_GROUP: DefaultResourceGroup-NEU          # Update with your Azure Resource Group name
   AZURE_LOCATION: North Europe                      # Update with your desired Azure region
 

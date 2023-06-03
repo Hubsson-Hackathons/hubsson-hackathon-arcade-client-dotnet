@@ -3,11 +3,11 @@ name: Build and Push image to Azure - Client
 on:
   push:
     branches:
-      - nemkecske
+      - release
 
 env:
   AZURE_CONTAINER_REGISTRY: HubssonHackathon  
-  AZURE_WEBAPP_NAME: nemkecske-client     # Update with your Azure Web App name
+  AZURE_WEBAPP_NAME: Team1-Client     # Update with your Azure Web App name
   AZURE_WEBAPP_SLOT: production             # Update with the deployment slot name (optional)
 
 jobs:
@@ -33,15 +33,6 @@ jobs:
                   docker build -f Hubsson.Hackathon.Arcade.Client.Dotnet/Hubsson.Hackathon.Arcade.Client.Dotnet/Dockerfile . -t HubssonHackathon.azurecr.io/${{ env.AZURE_WEBAPP_NAME }}:v1
                   docker push HubssonHackathon.azurecr.io/${{ env.AZURE_WEBAPP_NAME }}:v1
             
-            - name: 'Deploy Container App'
-		          uses: Azure/cli@v1
-		           with:
-			     inlineScript: |
-			       echo "Installing containerapp extension"
-			       az extension add --source https://workerappscliextension.blob.core.windows.net/azure-cli-extension/containerapp-0.2.0-py2.py3-none-any.whl --yes
-			       echo "Starting Deploying"
-			       az containerapp update -n nemkecske-client -g nemkecske-client -i HubssonHackathon.azurecr.io/${{ env.AZURE_CONTAINER_APP_NAME }}:v1 --registry-login-server HubssonHackathon.azurecr.io --registry-username  ${{ secrets.REGISTRY_USERNAME }} --registry-password ${{ secrets.REGISTRY_PASSWORD }} --debug
-
             - name: Azure logout
               run: |
                   az logout
