@@ -39,8 +39,8 @@ jobs:
             --registry-password ${{ secrets.REGISTRY_PASSWORD }}
 
 
-deploy:
-  needs: create-container-app
+  deploy:
+    needs: create-container-app
     runs-on: ubuntu-latest
 
     steps:
@@ -61,12 +61,10 @@ deploy:
           images: ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.AZURE_CONTAINER_APP_NAME }}:v1
 
       - name: Deploy to Azure Container App
-        uses: azure/webapps-container-deploy@v1
+        uses: azure/container-apps-deploy-action@v1
         with:
           app-name: ${{ env.AZURE_CONTAINER_APP_NAME }}
-          images: ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.AZURE_CONTAINER_APP_NAME }}:v1
-          resource-group: ${{ env.AZURE_RESOURCE_GROUP }}
-          location: ${{ env.AZURE_LOCATION }}
-          username: ${{ secrets.REGISTRY_USERNAME }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
-          enable-app-insights: true
+          acrName: HubssonHackathon
+          containerAppName: ${{ env.AZURE_CONTAINER_APP_NAME }}
+          resourceGroup: ${{ env.AZURE_RESOURCE_GROUP }}
+          imageToDeploy: ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.AZURE_CONTAINER_APP_NAME }}:v1
