@@ -12,7 +12,7 @@ IHost host = Host.CreateDefaultBuilder(args)
             .AddJsonFile("appsettings.json")
             .Build()
             .GetSection("ArcadeConfig");
-        
+        // Teszt
         services.AddHostedService<Worker>();
         services.AddTransient<MatchService>();
         services.AddSingleton(config.Get<ArcadeSettings>() ?? new ArcadeSettings());
