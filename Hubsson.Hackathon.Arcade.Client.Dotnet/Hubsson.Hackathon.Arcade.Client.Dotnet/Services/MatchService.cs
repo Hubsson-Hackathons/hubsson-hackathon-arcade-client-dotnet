@@ -6,10 +6,12 @@ namespace Hubsson.Hackathon.Arcade.Client.Dotnet.Services
     public class MatchService
     {
         private MatchRepository _matchRepository;
+        private ArcadeSettings _arcadeSettings;
         
-        public MatchService()
+        public MatchService(ArcadeSettings settings)
         {
             _matchRepository = new MatchRepository();
+            _arcadeSettings = settings;
         }
         
         public void Init()

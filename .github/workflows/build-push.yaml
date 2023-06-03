@@ -1,0 +1,37 @@
+name: Build and Push image to Azure - Client
+
+on:
+  push:
+    branches:
+      - release
+
+env:
+  AZURE_CONTAINER_REGISTRY: HubssonHackathon  
+  AZURE_WEBAPP_NAME: arcade-client-1     # Update with your Azure Web App name
+
+jobs:
+    build-and-deploy-client:
+        runs-on: ubuntu-latest
+        steps:
+            # checkout the repo
+            - name: "Checkout GitHub Action"
+              uses: actions/checkout@v2
+
+            - name: "Login via Azure CLI"
+              uses: azure/login@v1
+              with:
+                  creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+            - name: "Build and push"
+              uses: azure/docker-login@v1
+              with:
+                  login-server: HubssonHackathon.azurecr.io
+                  username: ${{ secrets.REGISTRY_USERNAME }}
+                  password: ${{ secrets.REGISTRY_PASSWORD }}
+            - run: |
+                  docker build -f Hubsson.Hackathon.Arcade.Client.Dotnet/Hubsson.Hackathon.Arcade.Client.Dotnet/Dockerfile . -t HubssonHackathon.azurecr.io/${{ env.AZURE_WEBAPP_NAME }}:v1
+                  docker push HubssonHackathon.azurecr.io/${{ env.AZURE_WEBAPP_NAME }}:v1
+            
+            - name: Azure logout
+              run: |
+                  az logout

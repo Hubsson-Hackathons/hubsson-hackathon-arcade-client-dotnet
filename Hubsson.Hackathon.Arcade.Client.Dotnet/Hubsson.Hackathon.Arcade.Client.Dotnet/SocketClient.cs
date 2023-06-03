@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Hubsson.Hackathon.Arcade.Client.Dotnet.Contracts;
 using Microsoft.Extensions.Logging;
 using SocketIOClient;
+using SocketIOClient.Transport;
 using Action = System.Action;
 
 namespace Hubsson.Hackathon.Arcade.Client.Dotnet
@@ -28,6 +29,7 @@ namespace Hubsson.Hackathon.Arcade.Client.Dotnet
                 ReconnectionAttempts = 100,
                 ReconnectionDelay = 50,
                 Auth = new Auth { username = username, secret = secret},
+                Transport = TransportProtocol.WebSocket,
             });
             this.initSocket();
         }

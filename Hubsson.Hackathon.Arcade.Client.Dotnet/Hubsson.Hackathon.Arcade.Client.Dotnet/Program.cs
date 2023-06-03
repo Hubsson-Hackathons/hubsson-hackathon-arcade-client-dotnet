@@ -1,3 +1,4 @@
+using System.Net;
 using Hubsson.Hackathon.Arcade.Client.Dotnet;
 using Hubsson.Hackathon.Arcade.Client.Dotnet.Services;
 using Microsoft.Extensions.Configuration;
