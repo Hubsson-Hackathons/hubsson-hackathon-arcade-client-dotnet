@@ -7,7 +7,7 @@ on:
 
 env:
   AZURE_CONTAINER_REGISTRY: HubssonHackathon  
-  AZURE_WEBAPP_NAME: Team1-Client     # Update with your Azure Web App name
+  AZURE_WEBAPP_NAME: team1-client     # Update with your Azure Web App name
   AZURE_WEBAPP_SLOT: production             # Update with the deployment slot name (optional)
 
 jobs:
