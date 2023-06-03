@@ -1,4 +1,5 @@
 ﻿using System;
+using Hubsson.Hackathon.Arcade.Client.Dotnet.Domain;
 using ClientGameState = Hubsson.Hackathon.Arcade.Client.Dotnet.Domain.ClientGameState;
 
 namespace Hubsson.Hackathon.Arcade.Client.Dotnet.Services
@@ -7,6 +8,7 @@ namespace Hubsson.Hackathon.Arcade.Client.Dotnet.Services
     {
         private MatchRepository _matchRepository;
         private ArcadeSettings _arcadeSettings;
+        private HelperService _helperService;
         
         public MatchService(ArcadeSettings settings)
         {
@@ -16,15 +18,12 @@ namespace Hubsson.Hackathon.Arcade.Client.Dotnet.Services
         
         public void Init()
         {
-            // On Game Init
-            throw new NotImplementedException();
+            _helperService = new HelperService(_arcadeSettings, Direction.Up);
         }
 
         public Hubsson.Hackathon.Arcade.Client.Dotnet.Domain.Action Update(ClientGameState gameState)
         {
-            // On Each Frame Update return an Action for your player
-
-            throw new NotImplementedException();
+            return _helperService.doNextMove(gameState);
         }
 
         private class MatchRepository
