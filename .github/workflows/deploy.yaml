@@ -36,13 +36,13 @@ jobs:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
-      - name: Configure Docker credentials
-        run: az containerapp create \
-          --name ${{ env.AZURE_CONTAINER_APP_NAME }} \
-          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-          --environment Production \
-          --image HubssonHackathon.azurecr.io/${{ env.AZURE_CONTAINER_APP_NAME }} \
-          --target-port 3500 \
-          --ingress 'external' \
-          --registry-server HubssonHackathon.azurecr.io \
-          --query properties.configuration.ingress.fqdn
+      - name: Deploy to Azure Container App
+        uses: azure/webapps-container-deploy@v1
+        with:
+          app-name: ${{ env.AZURE_CONTAINER_APP_NAME }}
+          images: ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.AZURE_CONTAINER_APP_NAME }}:v1
+          resource-group: ${{ env.AZURE_RESOURCE_GROUP }}
+          location: ${{ env.AZURE_LOCATION }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+          enable-app-insights: true
