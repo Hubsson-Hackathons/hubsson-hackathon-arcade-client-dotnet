@@ -3,7 +3,7 @@ name: Build and Push image to Azure - Client
 on:
   push:
     branches:
-      - main
+      - nemkecske
 
 env:
   AZURE_CONTAINER_REGISTRY: HubssonHackathon  
