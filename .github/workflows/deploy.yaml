@@ -3,7 +3,7 @@ name: Deploy to Azure - Client
 on:
   push:
     branches:
-      - nemkecske
+      - main
   workflow_run:
     workflows: ["Build and Push image to Azure - Client"]  
     types:
